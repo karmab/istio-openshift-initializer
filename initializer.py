@@ -1,7 +1,6 @@
 import json
 from kubernetes import config
-# from openshift import client, watch
-from kubernetes import client, watch
+from openshift import client, watch
 import os
 import yaml
 
@@ -17,47 +16,42 @@ def inject(obj):
     name = metadata.name
     namespace = metadata.namespace
     annotations = metadata.annotations
-    if annotations is not None and 'sidecar.istio.io/inject' in annotations and annotations['sidecar.istio.io/inject'] == 'false':
+    initializers = metadata.initializers
+    if initializers is None:
         return
-    if annotations is not None and 'sidecar.istio.io/status' in annotations and 'injected' in annotations['sidecar.istio.io/status']:
-        return
-    print("Updating %s" % name)
-    metadata._resource_version = ''
-    if metadata.annotations is None:
-        obj.metadata.annotations = {}
-    obj.metadata.annotations['sidecar.istio.io/status'] = 'injected-version-karim@111111111'
-    if obj.spec.template.metadata.annotations is None:
-        obj.spec.template.metadata.annotations = {}
-    obj.spec.template.metadata.annotations['sidecar.istio.io/status'] = 'injected-version-karim@111111111'
-    for container in containers:
-        obj.spec.template.spec.containers.append(container)
-    if obj.spec.template.spec.init_containers is None:
-        obj.spec.template.spec.init_containers = []
-    for initcontainer in initcontainers:
-        obj.spec.template.spec.init_containers.append(initcontainer)
-    if obj.spec.template.spec.volumes is None:
-        obj.spec.template.spec.volumes = []
-    for volume in volumes:
-        obj.spec.template.spec.volumes.append(volume)
-    obj.spec.strategy.rolling_update.max_surge += '%'
-    obj.spec.strategy.rolling_update.max_unavailable += '%'
-    api.replace_namespaced_deployment(name, namespace, obj)
-    # initializers = metadata.initializers
-    # if initializers is None:
-    #     return
-    # for entry in initializers.pending:
-    #     if entry.name == INITIALIZER:
-    #         print("Updating deployment config %s" % name)
-    #         initializers.pending.remove(entry)
-    #         if not initializers.pending:
-    #             initializers = None
-    #         obj.metadata.initializers = initializers
-    #         if annotation is None or (annotations and annotation in annotations and annotations[annotation] == 'true'):
-    #             print("Injecting istio stuff to deployment config %s" % name)
-    #             newcontainer = {'image': 'xxx', 'name': 'injected'}
-    #             obj.spec.template.spec.containers.append(newcontainer)
-    #         api.replace_namespaced_deployment_config(name, namespace, obj)
-    #         break
+    for entry in initializers.pending:
+        if entry.name == INITIALIZER:
+            print("Updating deployment config %s" % name)
+            initializers.pending.remove(entry)
+            if not initializers.pending:
+                initializers = None
+            obj.metadata.initializers = initializers
+            if annotations is not None and 'sidecar.istio.io/inject' in annotations and annotations['sidecar.istio.io/inject'] == 'false':
+                api.replace_namespaced_deployment_config(name, namespace, obj)
+                break
+            if annotations is not None and 'sidecar.istio.io/status' in annotations and 'injected' in annotations['sidecar.istio.io/status']:
+                api.replace_namespaced_deployment_config(name, namespace, obj)
+                break
+            print("Updating %s" % name)
+            metadata._resource_version = ''
+            if metadata.annotations is None:
+                obj.metadata.annotations = {}
+            obj.metadata.annotations['sidecar.istio.io/status'] = 'injected-version-karim@111111111'
+            if obj.spec.template.metadata.annotations is None:
+                obj.spec.template.metadata.annotations = {}
+            obj.spec.template.metadata.annotations['sidecar.istio.io/status'] = 'injected-version-karim@111111111'
+            for container in containers:
+                obj.spec.template.spec.containers.append(container)
+            if obj.spec.template.spec.init_containers is None:
+                obj.spec.template.spec.init_containers = []
+            for initcontainer in initcontainers:
+                obj.spec.template.spec.init_containers.append(initcontainer)
+            if obj.spec.template.spec.volumes is None:
+                obj.spec.template.spec.volumes = []
+            for volume in volumes:
+                obj.spec.template.spec.volumes.append(volume)
+            api.replace_namespaced_deployment_config(name, namespace, obj)
+            break
 
 
 if __name__ == "__main__":
@@ -74,12 +68,10 @@ if __name__ == "__main__":
         config.load_incluster_config()
     else:
         config.load_kube_config()
-    # api = client.OapiApi()
-    api = client.AppsV1beta1Api()
+    api = client.OapiApi()
     resource_version = ''
     while True:
-        # stream = watch.Watch().stream(api.list_deployment_config_for_all_namespaces, include_uninitialized=True, resource_version=resource_version)
-        stream = watch.Watch().stream(api.list_deployment_for_all_namespaces, include_uninitialized=True, resource_version=resource_version)
+        stream = watch.Watch().stream(api.list_deployment_config_for_all_namespaces, include_uninitialized=True, resource_version=resource_version)
         for event in stream:
                 obj = event["object"]
                 operation = event['type']
