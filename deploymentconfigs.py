@@ -3,9 +3,8 @@ from kubernetes import config
 from openshift import client, watch
 import os
 import yaml
-
-
-INITIALIZER = 'sidecar.initializer.istio.io'
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def inject(obj):
@@ -39,23 +38,6 @@ def inject(obj):
     for volume in volumes:
         obj.spec.template.spec.volumes.append(volume)
     api.replace_namespaced_deployment_config(name, namespace, obj)
-    # initializers = metadata.initializers
-    # if initializers is None:
-    #     return
-    # for entry in initializers.pending:
-    #     if entry.name == INITIALIZER:
-    #         print("Updating deployment config %s" % name)
-    #         initializers.pending.remove(entry)
-    #         if not initializers.pending:
-    #             initializers = None
-    #         obj.metadata.initializers = initializers
-    #         if annotation is None or (annotations and annotation in annotations and annotations[annotation] == 'true'):
-    #             print("Injecting istio stuff to deployment config %s" % name)
-    #             newcontainer = {'image': 'xxx', 'name': 'injected'}
-    #             obj.spec.template.spec.containers.append(newcontainer)
-    #         api.replace_namespaced_deployment_config(name, namespace, obj)
-    #         break
-
 
 if __name__ == "__main__":
     global api

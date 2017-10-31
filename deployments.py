@@ -1,12 +1,8 @@
 import json
 from kubernetes import config
-# from openshift import client, watch
 from kubernetes import client, watch
 import os
 import yaml
-
-
-INITIALIZER = 'sidecar.initializer.istio.io'
 
 
 def inject(obj):
@@ -42,23 +38,6 @@ def inject(obj):
     obj.spec.strategy.rolling_update.max_surge += '%'
     obj.spec.strategy.rolling_update.max_unavailable += '%'
     api.replace_namespaced_deployment(name, namespace, obj)
-    # initializers = metadata.initializers
-    # if initializers is None:
-    #     return
-    # for entry in initializers.pending:
-    #     if entry.name == INITIALIZER:
-    #         print("Updating deployment config %s" % name)
-    #         initializers.pending.remove(entry)
-    #         if not initializers.pending:
-    #             initializers = None
-    #         obj.metadata.initializers = initializers
-    #         if annotation is None or (annotations and annotation in annotations and annotations[annotation] == 'true'):
-    #             print("Injecting istio stuff to deployment config %s" % name)
-    #             newcontainer = {'image': 'xxx', 'name': 'injected'}
-    #             obj.spec.template.spec.containers.append(newcontainer)
-    #         api.replace_namespaced_deployment_config(name, namespace, obj)
-    #         break
-
 
 if __name__ == "__main__":
     global api
@@ -74,11 +53,9 @@ if __name__ == "__main__":
         config.load_incluster_config()
     else:
         config.load_kube_config()
-    # api = client.OapiApi()
     api = client.AppsV1beta1Api()
     resource_version = ''
     while True:
-        # stream = watch.Watch().stream(api.list_deployment_config_for_all_namespaces, include_uninitialized=True, resource_version=resource_version)
         stream = watch.Watch().stream(api.list_deployment_for_all_namespaces, include_uninitialized=True, resource_version=resource_version)
         for event in stream:
                 obj = event["object"]
