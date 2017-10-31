@@ -1,12 +1,4 @@
 containers:
-- image: istio/examples-helloworld-v2
-  imagePullPolicy: IfNotPresent
-  name: helloworld
-  ports:
-  - containerPort: 5000
-  resources:
-    requests:
-      cpu: 100m
 - args:
   - proxy
   - sidecar

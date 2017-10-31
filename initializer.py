@@ -17,14 +17,18 @@ def inject(obj):
     name = metadata.name
     namespace = metadata.namespace
     annotations = metadata.annotations
-    if 'sidecar.istio.io/inject' in annotations and annotations['sidecar.istio.io/inject'] == 'false':
+    if annotations is not None and 'sidecar.istio.io/inject' in annotations and annotations['sidecar.istio.io/inject'] == 'false':
         return
-    if 'sidecar.istio.io/status' in annotations and 'injected' in annotations['sidecar.istio.io/status']:
+    if annotations is not None and 'sidecar.istio.io/status' in annotations and 'injected' in annotations['sidecar.istio.io/status']:
         return
-    print("Updating deployment config %s" % name)
-    # print(obj.spec.template.spec)
-    metadata.annotations['sidecar.istio.io/status'] == 'injected-version-karim@111111111'
-    obj.spec.template.metadata.annotations['sidecar.istio.io/status'] == 'injected-version-karim@111111111'
+    print("Updating %s" % name)
+    metadata._resource_version = ''
+    if metadata.annotations is None:
+        obj.metadata.annotations = {}
+    obj.metadata.annotations['sidecar.istio.io/status'] = 'injected-version-karim@111111111'
+    if obj.spec.template.metadata.annotations is None:
+        obj.spec.template.metadata.annotations = {}
+    obj.spec.template.metadata.annotations['sidecar.istio.io/status'] = 'injected-version-karim@111111111'
     for container in containers:
         obj.spec.template.spec.containers.append(container)
     if obj.spec.template.spec.init_containers is None:
@@ -35,7 +39,9 @@ def inject(obj):
         obj.spec.template.spec.volumes = []
     for volume in volumes:
         obj.spec.template.spec.volumes.append(volume)
-    api.replace_namespaced_deployment_config(name, namespace, obj)
+    obj.spec.strategy.rolling_update.max_surge += '%'
+    obj.spec.strategy.rolling_update.max_unavailable += '%'
+    api.replace_namespaced_deployment(name, namespace, obj)
     # initializers = metadata.initializers
     # if initializers is None:
     #     return
@@ -83,5 +89,6 @@ if __name__ == "__main__":
                 metadata = obj.metadata
                 resource_version = metadata._resource_version
                 name = metadata.name
-                print("Handling %s on %s" % (operation, name))
-                inject(obj)
+                if operation == 'ADDED':
+                    print("Handling %s on %s" % (operation, name))
+                    inject(obj)
