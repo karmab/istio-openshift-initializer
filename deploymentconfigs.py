@@ -20,7 +20,7 @@ def inject(obj):
     if annotations is not None and 'sidecar.istio.io/status' in annotations and 'injected' in annotations['sidecar.istio.io/status']:
         return
     print("Updating %s" % name)
-    metadata._resource_version = ''
+    # obj.metadata._resource_version = str(int(metadata._resource_version) + 1)
     if metadata.annotations is None:
         obj.metadata.annotations = {}
     obj.metadata.annotations['sidecar.istio.io/status'] = 'injected-version-karim@111111111'

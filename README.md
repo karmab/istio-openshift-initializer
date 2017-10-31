@@ -17,4 +17,4 @@ oc create -f istio-openshift-initializer.yml
 
 ## TODO
 
-- switch to initializers
+- switch to initializers on an enable openshift instance as the current deploymentconfigs.py doesnt work because several controllers handle the dc, while we're trying to update the dc !
