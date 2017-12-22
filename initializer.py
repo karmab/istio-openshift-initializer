@@ -5,7 +5,8 @@ import os
 import yaml
 
 
-INITIALIZER = 'sidecar.initializer.istio.io'
+INITIALIZER = 'sidecar-dc.initializer.istio.io'
+VERSION = "injected-version-root@111111111"
 
 
 def inject(obj):
@@ -25,19 +26,20 @@ def inject(obj):
             obj.metadata.initializers.pending.remove(entry)
             if not initializers.pending:
                 obj.metadata.initializers = None
-            if annotations is not None and 'sidecar.istio.io/inject' in annotations and annotations['sidecar.istio.io/inject'] == 'false':
+            if annotations is not None and '%s/inject' % INITIALIZER in annotations and annotations['%s/inject' % INITIALIZER] == 'false':
                 api.replace_namespaced_deployment_config(name, namespace, obj)
                 break
-            if annotations is not None and 'sidecar.istio.io/status' in annotations and 'injected' in annotations['sidecar.istio.io/status']:
+            if annotations is not None and '%s/status' % INITIALIZER in annotations and 'injected' in annotations['%s/status' % INITIALIZER]:
                 api.replace_namespaced_deployment_config(name, namespace, obj)
                 break
             print("Updating %s" % name)
             if metadata.annotations is None:
                 obj.metadata.annotations = {}
-            obj.metadata.annotations['sidecar.istio.io/status'] = 'injected-version-karim@111111111'
+            obj.metadata.annotations['%s/status' % INITIALIZER] = VERSION
             if obj.spec.template.metadata.annotations is None:
                 obj.spec.template.metadata.annotations = {}
-            obj.spec.template.metadata.annotations['sidecar.istio.io/status'] = 'injected-version-karim@111111111'
+            obj.spec.template.metadata.annotations['%s/status' % INITIALIZER] = VERSION
+            containers[0]['args'][9] = name
             for container in containers:
                 obj.spec.template.spec.containers.append(container)
             if obj.spec.template.spec.init_containers is None:

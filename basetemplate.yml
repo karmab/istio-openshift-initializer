@@ -15,7 +15,7 @@ containers:
   - --parentShutdownDuration
   - 1m0s
   - --discoveryAddress
-  - istio-pilot.istio-system:8080
+  - istio-pilot.istio-system:15003
   - --discoveryRefreshDelay
   - 1s
   - --zipkinAddress
@@ -26,6 +26,8 @@ containers:
   - istio-mixer.istio-system:9125
   - --proxyAdminPort
   - "15000"
+  - --controlPlaneAuthPolicy
+  - NONE
   env:
   - name: POD_NAME
     valueFrom:
@@ -39,7 +41,7 @@ containers:
     valueFrom:
       fieldRef:
         fieldPath: status.podIP
-  image: docker.io/istio/proxy_debug:0.4.0
+  image: docker.io/istio/proxy_debug:0.3.0
   imagePullPolicy: IfNotPresent
   name: istio-proxy
   resources: {}
@@ -59,7 +61,7 @@ initContainers:
   - "15001"
   - -u
   - "1337"
-  image: docker.io/istio/proxy_init:0.4.0
+  image: docker.io/istio/proxy_init:0.3.0
   imagePullPolicy: IfNotPresent
   name: istio-init
   resources: {}
