@@ -9,6 +9,16 @@ oc annotate dc docker-registry sidecar.istio.io/inject='false' -n default
 oc annotate dc router sidecar.istio.io/inject='false' -n default
 ```
 
+## manual testing
+
+```
+oc login
+virtualenv openshift
+source openshift/bin/activate
+pip install openshift
+python initializer.py
+```
+
 ## deploy 
 
 ```
