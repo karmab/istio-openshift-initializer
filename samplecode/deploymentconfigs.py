@@ -3,7 +3,7 @@ from kubernetes import config
 from openshift import client, watch
 import os
 import yaml
-import time
+# import time
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -21,6 +21,7 @@ def inject(obj):
     if annotations is not None and 'sidecar.istio.io/status' in annotations and 'injected' in annotations['sidecar.istio.io/status']:
         return
     print("Updating %s" % name)
+    # obj.metadata._resource_version = ''
     if metadata.annotations is None:
         obj.metadata.annotations = {}
     obj.metadata.annotations['sidecar.istio.io/status'] = 'injected-version-karim@111111111'
@@ -37,13 +38,16 @@ def inject(obj):
         obj.spec.template.spec.volumes = []
     for volume in volumes:
         obj.spec.template.spec.volumes.append(volume)
-    updated = False
-    while not updated:
-        try:
-            api.replace_namespaced_deployment_config(name, namespace, obj)
-        except:
-            print("Waiting for my turn on %s...." % name)
-            time.sleep(5)
+    # api.replace_namespaced_deployment_config(name, namespace, obj)
+    api.patch_namespaced_deployment_config(name, namespace, obj)
+    # updated = False
+    # while not updated:
+    #     try:
+    #         api.replace_namespaced_deployment_config(name, namespace, obj)
+    #     except Exception as e:
+    #         print e
+    #         print("Waiting for my turn on %s...." % name)
+    #         time.sleep(5)
 
 if __name__ == "__main__":
     global api

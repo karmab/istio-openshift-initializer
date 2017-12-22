@@ -29,7 +29,7 @@ metadata:
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: istio-initializer
+  name: istio-openshift-initializer
   namespace: istio-system
   annotations:
     sidecar.istio.io/inject: "false"
@@ -50,7 +50,7 @@ spec:
       serviceAccountName: istio-initializer-service-account
       containers:
         - name: initializer
-          image: docker.io/istio/sidecar_initializer:0.2.10
+          image: docker.io/karmab/istio-openshift-initializer:latest
           imagePullPolicy: IfNotPresent
           args:
             - --port=8083
@@ -76,8 +76,5 @@ initializers:
         apiVersions:
           - "*"
         resources:
-          - deployments
-          - statefulsets
-          - jobs
-          - daemonsets
+          - deploymentconfigs
 ---

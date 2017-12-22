@@ -27,10 +27,10 @@ def inject(obj):
                 initializers = None
             obj.metadata.initializers = initializers
             if annotations is not None and 'sidecar.istio.io/inject' in annotations and annotations['sidecar.istio.io/inject'] == 'false':
-                api.replace_namespaced_deployment_config(name, namespace, obj)
+                api.patch_namespaced_deployment_config(name, namespace, obj)
                 break
             if annotations is not None and 'sidecar.istio.io/status' in annotations and 'injected' in annotations['sidecar.istio.io/status']:
-                api.replace_namespaced_deployment_config(name, namespace, obj)
+                api.patch_namespaced_deployment_config(name, namespace, obj)
                 break
             print("Updating %s" % name)
             metadata._resource_version = ''
@@ -50,7 +50,7 @@ def inject(obj):
                 obj.spec.template.spec.volumes = []
             for volume in volumes:
                 obj.spec.template.spec.volumes.append(volume)
-            api.replace_namespaced_deployment_config(name, namespace, obj)
+            api.patch_namespaced_deployment_config(name, namespace, obj)
             break
 
 

@@ -1,9 +1,9 @@
 apiVersion: admissionregistration.k8s.io/v1alpha1
 kind: InitializerConfiguration
 metadata:
-  name: test
+  name: istio-sidecar
 initializers:
-  - name: test.initializer.karmalabs.local
+  - name: sidecar.initializer.istio.io
     rules:
       - apiGroups:
           - "*"
