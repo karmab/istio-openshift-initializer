@@ -22,18 +22,16 @@ def inject(obj):
     for entry in initializers.pending:
         if entry.name == INITIALIZER:
             print("Updating deployment config %s" % name)
-            initializers.pending.remove(entry)
+            obj.metadata.initializers.pending.remove(entry)
             if not initializers.pending:
-                initializers = None
-            obj.metadata.initializers = initializers
+                obj.metadata.initializers = None
             if annotations is not None and 'sidecar.istio.io/inject' in annotations and annotations['sidecar.istio.io/inject'] == 'false':
-                api.patch_namespaced_deployment_config(name, namespace, obj)
+                api.replace_namespaced_deployment_config(name, namespace, obj)
                 break
             if annotations is not None and 'sidecar.istio.io/status' in annotations and 'injected' in annotations['sidecar.istio.io/status']:
-                api.patch_namespaced_deployment_config(name, namespace, obj)
+                api.replace_namespaced_deployment_config(name, namespace, obj)
                 break
             print("Updating %s" % name)
-            metadata._resource_version = ''
             if metadata.annotations is None:
                 obj.metadata.annotations = {}
             obj.metadata.annotations['sidecar.istio.io/status'] = 'injected-version-karim@111111111'
@@ -50,7 +48,14 @@ def inject(obj):
                 obj.spec.template.spec.volumes = []
             for volume in volumes:
                 obj.spec.template.spec.volumes.append(volume)
-            api.patch_namespaced_deployment_config(name, namespace, obj)
+            # api.patch_namespaced_deployment_config(name, namespace, obj)
+            api.replace_namespaced_deployment_config(name, namespace, obj)
+            alldc = api.list_deployment_config_for_all_namespaces(include_uninitialized=True)
+            updateddc = [d for d in alldc.items if d.metadata.name == name and d.metadata.namespace == namespace][0]
+            try:
+                api.replace_namespaced_deployment_config(name, namespace, updateddc)
+            except:
+                continue
             break
 
 

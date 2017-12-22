@@ -1,6 +1,6 @@
 FROM karmab/client-python-openshift
 MAINTAINER Karim Boumedhel <karimboumedhel@gmail.com>
 
-ADD controller.py /tmp
+ADD initializer.py /tmp
 
-ENTRYPOINT  ["python", "-u", "/tmp/controller.py"]
+ENTRYPOINT  ["python", "-u", "/tmp/initializer.py"]
