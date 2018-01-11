@@ -41,7 +41,7 @@ containers:
     valueFrom:
       fieldRef:
         fieldPath: status.podIP
-  image: {{ proxy_image }}
+  image: {{ proxyimage }}
   imagePullPolicy: {{ imagepullpolicy }}
   name: istio-proxy
   resources: {}
@@ -61,7 +61,7 @@ initContainers:
   - "15001"
   - -u
   - "1337"
-  image: {{ init_image }}
+  image: {{ initimage }}
   imagePullPolicy: {{ imagepullpolicy }}
   name: istio-init
   resources: {}

@@ -111,6 +111,7 @@ if __name__ == "__main__":
             debug = params.get('debugMode', debug)
             verbosity = params.get('verbosity', verbosity)
     print("Current settings :")
+    print("namespaces : %s" % namespaces)
     print("initimage : %s" % initimage)
     print("proxyimage : %s" % proxyimage)
     print("imagepullpolicy : %s" % imagepullpolicy)
@@ -139,7 +140,7 @@ if __name__ == "__main__":
                 if operation == 'ADDED':
                     if policy != 'enabled':
                         print("Skipping %s on %s as per current policy" % (operation, name))
-                    elif namespace not in namespaces:
+                    elif namespace not in namespaces and namespaces != ['']:
                         print("Skipping %s on %s as of the namespace of this deployment config" % (operation, name))
                     else:
                         print("Handling %s on %s" % (operation, name))
