@@ -1,9 +1,9 @@
 apiVersion: admissionregistration.k8s.io/v1alpha1
 kind: InitializerConfiguration
 metadata:
-  name: sidecar-dc
+  name: istio-sidecar-dc
 initializers:
-  - name: sidecar-dc.initializer.istio.io
+  - name: istio-sidecar-dc.initializer.istio.io
     rules:
       - apiGroups:
           - "*"
