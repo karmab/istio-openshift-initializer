@@ -66,6 +66,5 @@ oc create -f istio-openshift-initializer.yml
 
 ## TODO
 
-- use configmaps to indicate image tag and so on
-- render basetemplate.yml with jinja with the data from the configmap
+- handle debug set to False from configmap
 - find out why the update of the containers and the initializers doesnt work in a single replace

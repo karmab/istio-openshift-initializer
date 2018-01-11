@@ -3,7 +3,7 @@ containers:
   - proxy
   - sidecar
   - -v
-  - "2"
+  - "{{ verbosity }}"
   - --configPath
   - /etc/istio/proxy
   - --binaryPath
@@ -41,8 +41,8 @@ containers:
     valueFrom:
       fieldRef:
         fieldPath: status.podIP
-  image: docker.io/istio/proxy_debug:0.4.0
-  imagePullPolicy: IfNotPresent
+  image: {{ proxy_image }}
+  imagePullPolicy: {{ imagepullpolicy }}
   name: istio-proxy
   resources: {}
   securityContext:
@@ -61,8 +61,8 @@ initContainers:
   - "15001"
   - -u
   - "1337"
-  image: docker.io/istio/proxy_init:0.4.0
-  imagePullPolicy: IfNotPresent
+  image: {{ init_image }}
+  imagePullPolicy: {{ imagepullpolicy }}
   name: istio-init
   resources: {}
   securityContext:

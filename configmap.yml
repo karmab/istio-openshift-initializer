@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: istio-inject-dc
+  namespace: istio-system
+data:
+  config: |-
+    policy: "enabled"
+    namespaces: [""] # everything, aka v1.NamespaceAll, aka cluster-wide
+    initializerName: "sidecar-dc.initializer.istio.io"
+    params:
+      initImage: docker.io/istio/proxy_init:0.4.0
+      proxyImage: docker.io/istio/proxy:0.4.0
+      verbosity: 2
+      version: 0.4.0
+      meshConfigMapName: istio-dc
+      imagePullPolicy: IfNotPresent
+      debugMode: true
