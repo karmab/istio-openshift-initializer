@@ -5,7 +5,7 @@ import os
 import yaml
 
 
-INITIALIZER = 'istio-sidecar-dc.initializer.istio.io'
+INITIALIZER = 'sidecar-dc.initializer.istio.io'
 VERSION = "injected-version-root@111111111"
 
 

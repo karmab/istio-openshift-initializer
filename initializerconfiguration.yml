@@ -3,7 +3,7 @@ kind: InitializerConfiguration
 metadata:
   name: istio-sidecar-dc
 initializers:
-  - name: istio-sidecar-dc.initializer.istio.io
+  - name: sidecar-dc.initializer.istio.io
     rules:
       - apiGroups:
           - "*"
