@@ -1,7 +1,7 @@
 import json
 from jinja2 import Environment, FileSystemLoader
 from kubernetes import config
-from kubernetes import client as kclient
+from kubernetes.client import CoreV1Api
 from openshift import client as oclient
 from openshift import watch
 import os
@@ -62,7 +62,10 @@ def inject(obj):
             for volume in volumes:
                 obj.spec.template.spec.volumes.append(volume)
             # api.patch_namespaced_deployment_config(name, namespace, obj)
-            api.replace_namespaced_deployment_config(name, namespace, obj)
+            try:
+                api.replace_namespaced_deployment_config(name, namespace, obj)
+            except:
+                continue
             alldc = api.list_deployment_config_for_all_namespaces(include_uninitialized=True)
             updateddc = [d for d in alldc.items if d.metadata.name == name and d.metadata.namespace == namespace][0]
             try:
@@ -82,7 +85,7 @@ if __name__ == "__main__":
         config.load_incluster_config()
     else:
         config.load_kube_config()
-    kv1 = kclient.CoreV1Api()
+    kv1 = CoreV1Api()
     configmaps = kv1.list_namespaced_config_map(CONFIGMAPNAMESPACE)
     policy = 'enabled'
     initializername = INITIALIZER
