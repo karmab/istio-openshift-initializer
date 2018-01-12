@@ -9,7 +9,7 @@ import yaml
 
 
 INITIALIZER = 'sidecar-dc.initializer.istio.io'
-VERSION = "injected-version-root@111111111"
+INJECTED_VERSION = "injected-version-root@111111111"
 CONFIGMAP = "istio-inject-dc"
 CONFIGMAPNAMESPACE = "istio-system"
 ISTIO_VERSION = '0.4.0'
@@ -46,10 +46,10 @@ def inject(obj):
             print("Updating %s" % name)
             if metadata.annotations is None:
                 obj.metadata.annotations = {}
-            obj.metadata.annotations['%s/status' % initializername] = VERSION
+            obj.metadata.annotations['%s/status' % initializername] = INJECTED_VERSION
             if obj.spec.template.metadata.annotations is None:
                 obj.spec.template.metadata.annotations = {}
-            obj.spec.template.metadata.annotations['%s/status' % initializername] = VERSION
+            obj.spec.template.metadata.annotations['%s/status' % initializername] = INJECTED_VERSION
             containers[0]['args'][9] = name
             for container in containers:
                 obj.spec.template.spec.containers.append(container)
@@ -89,12 +89,13 @@ if __name__ == "__main__":
     configmaps = kv1.list_namespaced_config_map(CONFIGMAPNAMESPACE)
     policy = 'enabled'
     initializername = INITIALIZER
-    initimage = 'docker.io/istio/proxy_init:%s' % ISTIO_VERSION
-    proxyimage = 'docker.io/istio/proxy_debug:%s' % ISTIO_VERSION
+    initimage = None
+    proxyimage = None
     imagepullpolicy = IMAGEPULLPOLICY
     debug = DEBUG
     verbosity = VERBOSITY
     namespaces = NAMESPACES
+    version = ISTIO_VERSION
     configmap = None
     if configmaps.items:
         found = [c for c in configmaps.items if c.metadata.name == CONFIGMAP]
@@ -113,12 +114,22 @@ if __name__ == "__main__":
             imagepullpolicy = params.get('imagePullPolicy', imagepullpolicy)
             debug = params.get('debugMode', debug)
             verbosity = params.get('verbosity', verbosity)
+            version = params.get('version', version)
+    if proxyimage is None:
+        proxyimage = 'docker.io/istio/proxy_debug:%s' % version
+    if initimage is None:
+        initimage = 'docker.io/istio/proxy_init:%s' % version
+    if not debug:
+        proxyimage = proxyimage.replace('_debug', '')
     print("Current settings :")
+    print("debug : %s" % debug)
     print("namespaces : %s" % namespaces)
     print("initimage : %s" % initimage)
     print("proxyimage : %s" % proxyimage)
     print("imagepullpolicy : %s" % imagepullpolicy)
     print("verbosity : %s" % verbosity)
+    print("initializername : %s" % initializername)
+    print("This initializer operated on deployment configs")
     env = Environment(loader=FileSystemLoader('.'))
     templ = env.get_template(os.path.basename(TEMPLATE))
     render = templ.render(initimage=initimage, proxyimage=proxyimage, imagepullpolicy=imagepullpolicy, verbosity=verbosity)
