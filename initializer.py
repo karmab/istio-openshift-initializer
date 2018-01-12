@@ -129,7 +129,7 @@ if __name__ == "__main__":
     print("imagepullpolicy : %s" % imagepullpolicy)
     print("verbosity : %s" % verbosity)
     print("initializername : %s" % initializername)
-    print("This initializer operated on deployment configs")
+    print("This initializer operates on deployment configs")
     env = Environment(loader=FileSystemLoader('.'))
     templ = env.get_template(os.path.basename(TEMPLATE))
     render = templ.render(initimage=initimage, proxyimage=proxyimage, imagepullpolicy=imagepullpolicy, verbosity=verbosity)

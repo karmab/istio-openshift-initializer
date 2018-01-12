@@ -38,6 +38,13 @@ oc annotate dc docker-registry sidecar.istio.io/inject='false' -n default
 oc annotate dc router sidecar.istio.io/inject='false' -n default
 ```
 
+you will also need to give privileges to the sa running the istio-openshift-initializer pod so that it can watch/edit deploymentconfigs in the cluster.
+provided you installed istio, the following line will do the trick:
+
+```
+oc adm policy add-cluster-role-to-user cluster-admin -z istio-initializer-service-account -n istio-system
+```
+
 ## manual testing
 
 create the initializerconfiguration object
@@ -54,6 +61,12 @@ source openshift/bin/activate
 pip install openshift
 oc login
 python initializer.py
+```
+
+you can also use the docker version (jimmy hendrix would have liked istio)
+
+```
+docker run --rm -it -v ~/.kube:/home/jhendrix/.kube karmab/istio-openshift-initializer
 ```
 
 ## deploy 
