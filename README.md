@@ -1,6 +1,7 @@
 # istio openshift initializer
 
-# repo to host code to autoinject istio side cars to deployment configs objects
+this repo contains code allowing to autoinject istio side cars to deployment configs objects. It maps what's done by (istio initializer)
+but exclusively for deployment configs, which are openshift specific objects
 
 ## requirements
 
@@ -21,6 +22,16 @@ admissionConfig:
         disable: false
         kind: DefaultAdmissionConfig
       location: ""
+(...)
+....
+kubernetesMasterConfig:
+  admissionConfig:
+    pluginConfig: null
+  apiLevels: null
+  apiServerArguments:
+    runtime-config:
+    - apis/admissionregistration.k8s.io/v1alpha1=true
+(...)
 ```
 
 if testing with oc cluster up, you can use the following snippet:
@@ -76,6 +87,11 @@ the following yaml will deploy the controller using my image stored in docker.io
 ```
 oc create -f istio-openshift-initializer.yml
 ```
+
+## using 
+
+launch a deployment config, and see how its definition gets updated with an additional init container and container
+dc with the following annotion *sidecar.istio.io/inject='false'* don't get patched
 
 ## TODO
 
